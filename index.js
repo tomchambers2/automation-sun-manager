@@ -37,10 +37,18 @@ function setSchedule(date) {
 
 schedule.scheduleJob('03 0 * * *', setSchedule())
 
+var turnOff
+function turnLightsOff() {
+	client.publish('lights/off')
+}
+
 client.on('message', function(topic, payload) {
 	if (dark && moment().isBefore(moment.endOf('day').subtract(1, 'hours'))) {
 		console.log('It\'s dark and someone is here, turning on the lights')
 		client.publish('lights/on')
+
+		if (turnOff) turnOff.cancel()
+		turnOff = schedule.scheduleJob(moment().add(30, 'minutes', turnLightsOff())
 	} else {
 		console.log('Somone is here, but it\'s too bright for lights')
 	}
